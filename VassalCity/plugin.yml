@@ -1,0 +1,9 @@
+name: VassalCity
+main: io.github.kingvictoria.vassalcity.main.Main
+version: 0.1
+author: kingvictoria
+commands: 
+  vassalcity:
+    description: Help for VassalCity
+    usage: /vassalcity help
+    aliases: vc
