@@ -308,6 +308,11 @@ public class City implements Serializable {
 		return color;
 	}
 	
+	/**
+	 * Sets the color of the city on the map
+	 * 
+	 * @param color  is a byte correspondent to the Map Color
+	 */
 	public void setColor(byte color){
 		this.color = color;
 	}
