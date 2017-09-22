@@ -22,6 +22,7 @@ public class City implements Serializable {
 
 	private static final long serialVersionUID = 3643463171455939146L;
 	
+	private int id;
 	private byte color;
 	private SerializableLocation center; // SigilPoint (City Center) 
 	private String name;
@@ -45,8 +46,22 @@ public class City implements Serializable {
 		owner = new Member(player, this);
 		members.add(owner);
 		ranks.get("Owner").addRanked(owner);
-		VassalCity.getInstance().cityClaims.put(
-				new ChunkCoordinate(center.getWorld().getChunkAt(center.getLocation()).getX(), center.getWorld().getChunkAt(center.getLocation()).getZ()), this);
+		VassalCity.getInstance().cityClaims.put(new ChunkCoordinate(center.getWorld().getChunkAt(center.getLocation()).getX(), center.getWorld().getChunkAt(center.getLocation()).getZ()), this);
+		
+		// UNIQUE CITY ID
+		id = 0;
+		for(City city: VassalCity.getInstance().cities)
+			if(city.getId() == id)
+				id++;
+	}
+	
+	/**
+	 * Gives the unique id of the city.
+	 * 
+	 * @return int id
+	 */
+	public int getId(){
+		return id;
 	}
 	
 	/**
