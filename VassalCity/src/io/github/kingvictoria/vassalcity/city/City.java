@@ -3,6 +3,7 @@ package io.github.kingvictoria.vassalcity.city;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import io.github.kingvictoria.vassalcity.main.VassalCity;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
 import io.github.kingvictoria.vassalcity.serialization.SerializableLocation;
+import io.github.kingvictoria.vassalcore.main.VassalPlayer;
 
 
 /**
@@ -27,9 +29,8 @@ public class City implements Serializable {
 	private SerializableLocation center; // SigilPoint (City Center) 
 	private String name;
 	private String entranceMessage;
-	private Member owner;
-	private ArrayList<Member> members = new ArrayList<Member>();
-	private HashMap<String, Rank> ranks = new HashMap<String, Rank>(); 
+	private UUID owner;
+	private ArrayList<UUID> members = new ArrayList<UUID>();
 	
 	/**
 	 * Creates an instance of type City.
@@ -42,10 +43,10 @@ public class City implements Serializable {
 		center = new SerializableLocation(loc);
 		color = (byte) (center.getX()*center.getY()*center.getZ());
 		this.name = name;
-		ranks.put("Owner", new Rank(this));
-		owner = new Member(player, this);
+		owner = player.getUniqueId();
 		members.add(owner);
-		ranks.get("Owner").addRanked(owner);
+		Rank r = new Rank(this, "owner");
+		// VassalPlayer.getPlayer(owner).addRank TODO add ranks to VassalPlayer
 		VassalCity.getInstance().cityClaims.put(new ChunkCoordinate(center.getWorld().getChunkAt(center.getLocation()).getX(), center.getWorld().getChunkAt(center.getLocation()).getZ()), this);
 		
 		// UNIQUE CITY ID

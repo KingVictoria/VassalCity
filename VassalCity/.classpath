@@ -8,5 +8,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Allan/Desktop/Spigot/BuildTools/spigot-1.12.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Starbattle/Desktop/Spigot/LatestCompiledVersions/VassalCore.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
