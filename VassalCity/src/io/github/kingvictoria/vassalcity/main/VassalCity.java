@@ -10,15 +10,15 @@ import io.github.kingvictoria.vassalcity.city.City;
 import io.github.kingvictoria.vassalcity.commands.CommandVassalCity;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
 
-public class Main extends JavaPlugin {
+public class VassalCity extends JavaPlugin {
 	
 	public ArrayList<City> cities;
 	public HashMap<ChunkCoordinate, City> cityClaims;
 	
-	private static Main instance;
+	private static VassalCity instance;
 	private static FileHandler fh;
 	
-	public static Main getInstance() {
+	public static VassalCity getInstance() {
 		return instance;
 	}
 

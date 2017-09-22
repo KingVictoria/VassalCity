@@ -18,11 +18,11 @@ public class FileHandler {
 	
 	public FileHandler() {
 		
-		File dir = Main.getInstance().getDataFolder();
+		File dir = VassalCity.getInstance().getDataFolder();
 		
 		if(!dir.exists())
 			if(!dir.mkdir())
-				System.out.println("["+Main.getInstance().getName()+"] Could not create data directory");
+				System.out.println("["+VassalCity.getInstance().getName()+"] Could not create data directory");
 		
 		loadCities();
 		if(cities.size() > 0)
@@ -35,23 +35,23 @@ public class FileHandler {
 	}
 	
 	public void close(){
-		save(cities, new File(Main.getInstance().getDataFolder(), "cities.dat"));
+		save(cities, new File(VassalCity.getInstance().getDataFolder(), "cities.dat"));
 		if(cities.size() > 0)
-			System.out.println("[VassalCity] Saving Cities: "+Main.getInstance().cities.toString());
+			System.out.println("[VassalCity] Saving Cities: "+VassalCity.getInstance().cities.toString());
 		
 		HashMap<ChunkCoordinate, String> saveCityClaims = new HashMap<ChunkCoordinate, String>();
 		for(ChunkCoordinate key: cityClaims.keySet()) //Changes all those cities into strings that represent them (avoids doubling of city objects among other stupidity)
 			saveCityClaims.put(key, cityClaims.get(key).getName());
-		save(saveCityClaims, new File(Main.getInstance().getDataFolder(), "cityclaims.dat"));
+		save(saveCityClaims, new File(VassalCity.getInstance().getDataFolder(), "cityclaims.dat"));
 		if(cityClaims.size() > 0){
 			System.out.println("[VassalCity] Number of city claims: "+saveCityClaims.size());
-			System.out.println("[VassalCity] Saving City Claims: "+Main.getInstance().cityClaims.toString());
+			System.out.println("[VassalCity] Saving City Claims: "+VassalCity.getInstance().cityClaims.toString());
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void loadCities() {
-		cities = (ArrayList<City>) load(new File(Main.getInstance().getDataFolder(), "cities.dat"));
+		cities = (ArrayList<City>) load(new File(VassalCity.getInstance().getDataFolder(), "cities.dat"));
 		
 		if(cities == null)
 			cities = new ArrayList<City>();
@@ -60,7 +60,7 @@ public class FileHandler {
 	@SuppressWarnings("unchecked")
 	private void loadCityClaims() {
 		cityClaims = new HashMap<ChunkCoordinate, City>();
-		HashMap<ChunkCoordinate, String> loadCityClaims = (HashMap<ChunkCoordinate, String>) load(new File(Main.getInstance().getDataFolder(), "cityclaims.dat"));
+		HashMap<ChunkCoordinate, String> loadCityClaims = (HashMap<ChunkCoordinate, String>) load(new File(VassalCity.getInstance().getDataFolder(), "cityclaims.dat"));
 		
 		if (loadCityClaims != null) // Changes all those strings to references to the city objects
 			for(ChunkCoordinate key: loadCityClaims.keySet())

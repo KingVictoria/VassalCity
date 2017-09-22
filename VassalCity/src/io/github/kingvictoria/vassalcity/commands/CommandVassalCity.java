@@ -14,7 +14,7 @@ import org.bukkit.map.MapView;
 
 import io.github.kingvictoria.vassalcity.city.City;
 import io.github.kingvictoria.vassalcity.city.Member;
-import io.github.kingvictoria.vassalcity.main.Main;
+import io.github.kingvictoria.vassalcity.main.VassalCity;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
 
 public class CommandVassalCity implements CommandExecutor {
@@ -55,7 +55,7 @@ public class CommandVassalCity implements CommandExecutor {
 				
 				if(args.length == 2)
 					try{
-						for(City city: Main.getInstance().cities)
+						for(City city: VassalCity.getInstance().cities)
 							if(city.getName().equalsIgnoreCase(args[1]))
 								if(claim(player, city)){
 									return true;
@@ -70,7 +70,7 @@ public class CommandVassalCity implements CommandExecutor {
 				
 				if(args.length == 4){
 					try{
-						for(City city: Main.getInstance().cities)
+						for(City city: VassalCity.getInstance().cities)
 							if(city.getName().equalsIgnoreCase(args[1]))
 								if(claim(player, city, new ChunkCoordinate(new Integer(args[2]).intValue(), new Integer(args[3]).intValue()))){
 									return true;
@@ -163,15 +163,15 @@ public class CommandVassalCity implements CommandExecutor {
 	}
 	
 	private boolean newCity(Player player, String name, Location loc){
-		for(City city: Main.getInstance().cities)
+		for(City city: VassalCity.getInstance().cities)
 			if(city.getName().equalsIgnoreCase(name))
 				return false;
 		
-		for(ChunkCoordinate coord: Main.getInstance().cityClaims.keySet())
+		for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet())
 			if(coord.equals(loc))
 				return false;
 		
-		Main.getInstance().cities.add(new City(player, name, loc));
+		VassalCity.getInstance().cities.add(new City(player, name, loc));
 		
 		return true;
 	}
@@ -194,19 +194,19 @@ public class CommandVassalCity implements CommandExecutor {
 	}
 	
 	private boolean claim(Player player){
-		for(City city: Main.getInstance().cities)
+		for(City city: VassalCity.getInstance().cities)
 			for(Member member: city.getMembers())
 				if(member.getPlayer().equals(player) && member.getActive()){
 					boolean nextTo = false;
-					for(ChunkCoordinate coord: Main.getInstance().cityClaims.keySet()){
+					for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet()){
 						if(coord.equals(player.getLocation()))
 							return false;
-						if(coord.nextTo(player.getLocation()) && Main.getInstance().cityClaims.get(coord).equals(city))
+						if(coord.nextTo(player.getLocation()) && VassalCity.getInstance().cityClaims.get(coord).equals(city))
 							nextTo = true;
 					}
 
 					if(nextTo){
-						Main.getInstance().cityClaims.put(new ChunkCoordinate(player.getLocation()), city);
+						VassalCity.getInstance().cityClaims.put(new ChunkCoordinate(player.getLocation()), city);
 						player.sendMessage(ChatColor.YELLOW+"Chunk at ("+player.getLocation().getChunk().getX()+", "+player.getLocation().getChunk().getZ()
 								+") claimed for "+city.getName());
 						return true;
@@ -224,17 +224,17 @@ public class CommandVassalCity implements CommandExecutor {
 		for(Member member: city.getMembers())
 			if(member.getPlayer().equals(player)){
 				boolean nextTo = false;
-				for(ChunkCoordinate coord: Main.getInstance().cityClaims.keySet()){
+				for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet()){
 					if(coord.equals(player.getLocation())){
-						player.sendMessage(ChatColor.YELLOW+"That chunk has already been claimed by "+Main.getInstance().cityClaims.get(coord).getName());
+						player.sendMessage(ChatColor.YELLOW+"That chunk has already been claimed by "+VassalCity.getInstance().cityClaims.get(coord).getName());
 						return true;
 					}
-					if(coord.nextTo(player.getLocation()) && Main.getInstance().cityClaims.get(coord).equals(city))
+					if(coord.nextTo(player.getLocation()) && VassalCity.getInstance().cityClaims.get(coord).equals(city))
 						nextTo = true;
 				}
 				
 				if(nextTo){
-					Main.getInstance().cityClaims.put(new ChunkCoordinate(player.getLocation()), city);
+					VassalCity.getInstance().cityClaims.put(new ChunkCoordinate(player.getLocation()), city);
 					player.sendMessage(ChatColor.YELLOW+"Chunk at ("+player.getLocation().getChunk().getX()+", "+player.getLocation().getChunk().getZ()
 							+") claimed for "+city.getName());
 					return true;
@@ -252,15 +252,15 @@ public class CommandVassalCity implements CommandExecutor {
 		for(Member member: city.getMembers())
 			if(member.getPlayer().equals(player)){
 				boolean nextTo = false;
-				for(ChunkCoordinate coord: Main.getInstance().cityClaims.keySet()){
+				for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet()){
 					if(coord.equals(loc))
 						return false;
-					if(coord.nextTo(loc) && Main.getInstance().cityClaims.get(coord).equals(city))
+					if(coord.nextTo(loc) && VassalCity.getInstance().cityClaims.get(coord).equals(city))
 						nextTo = true;
 				}
 				
 				if(nextTo){
-					Main.getInstance().cityClaims.put(loc, city);
+					VassalCity.getInstance().cityClaims.put(loc, city);
 					player.sendMessage(ChatColor.YELLOW+"Chunk at ("+player.getLocation().getChunk().getX()+", "+player.getLocation().getChunk().getZ()
 							+") claimed for "+city.getName());
 					return true;

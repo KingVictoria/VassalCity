@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import io.github.kingvictoria.vassalcity.main.Main;
+import io.github.kingvictoria.vassalcity.main.VassalCity;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
 import io.github.kingvictoria.vassalcity.serialization.SerializableLocation;
 
@@ -45,7 +45,7 @@ public class City implements Serializable {
 		owner = new Member(player, this);
 		members.add(owner);
 		ranks.get("Owner").addRanked(owner);
-		Main.getInstance().cityClaims.put(
+		VassalCity.getInstance().cityClaims.put(
 				new ChunkCoordinate(center.getWorld().getChunkAt(center.getLocation()).getX(), center.getWorld().getChunkAt(center.getLocation()).getZ()), this);
 	}
 	
@@ -138,8 +138,8 @@ public class City implements Serializable {
 	 */
 	public ArrayList<ChunkCoordinate> getClaims(){
 		ArrayList<ChunkCoordinate> claims = new ArrayList<ChunkCoordinate>();
-		for(ChunkCoordinate coord: Main.getInstance().cityClaims.keySet())
-			if(Main.getInstance().cityClaims.get(coord).equals(this))
+		for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet())
+			if(VassalCity.getInstance().cityClaims.get(coord).equals(this))
 				claims.add(coord);
 		
 		return claims;
@@ -278,10 +278,10 @@ public class City implements Serializable {
 	 */
 	public void abandon(){
 		members.clear();
-		Main.getInstance().cities.remove(this);
-		for(ChunkCoordinate key: Main.getInstance().cityClaims.keySet()){
-			if(Main.getInstance().cityClaims.get(key).equals(this))
-				Main.getInstance().cityClaims.remove(key);
+		VassalCity.getInstance().cities.remove(this);
+		for(ChunkCoordinate key: VassalCity.getInstance().cityClaims.keySet()){
+			if(VassalCity.getInstance().cityClaims.get(key).equals(this))
+				VassalCity.getInstance().cityClaims.remove(key);
 		}
 	}
 	
@@ -292,8 +292,8 @@ public class City implements Serializable {
 	 * @return    false if the location is not within the city's claims
 	 */
 	public boolean isInClaims(Location loc){
-		for(ChunkCoordinate key: Main.getInstance().cityClaims.keySet())
-			if(Main.getInstance().cityClaims.get(key).equals(this) 
+		for(ChunkCoordinate key: VassalCity.getInstance().cityClaims.keySet())
+			if(VassalCity.getInstance().cityClaims.get(key).equals(this) 
 					&& loc.getChunk().getX() == key.getX() && loc.getChunk().getZ() == key.getZ() && center.getWorld().equals(loc.getWorld()))
 				return true;
 		

@@ -7,7 +7,7 @@ import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
-import io.github.kingvictoria.vassalcity.main.Main;
+import io.github.kingvictoria.vassalcity.main.VassalCity;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
 
 public class LocalMap extends MapRenderer {
@@ -27,9 +27,9 @@ public class LocalMap extends MapRenderer {
 		
 		for(int x = 0; x < 9; x++){
 			for(int z = 0; z < 9; z++){
-				for(ChunkCoordinate coord: Main.getInstance().cityClaims.keySet())
+				for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet())
 					if(coord.equals(chunk.getX()-4+x, chunk.getZ()-4+z))
-						map[x][z] = Main.getInstance().cityClaims.get(coord).getColor();
+						map[x][z] = VassalCity.getInstance().cityClaims.get(coord).getColor();
 				
 				if(map[x][z] == 0)
 					map[x][z] = (byte) 255;
