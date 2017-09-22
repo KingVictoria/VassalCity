@@ -16,7 +16,6 @@ public class VassalCity extends JavaPlugin {
 	public HashMap<ChunkCoordinate, City> cityClaims;
 	
 	private static VassalCity instance;
-	private static FileHandler fh;
 	
 	public static VassalCity getInstance() {
 		return instance;
@@ -26,11 +25,6 @@ public class VassalCity extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		
-		// Load from files
-		fh = new FileHandler();
-		cities = fh.getCities();
-		cityClaims = fh.getCityClaims();
-		
 		// Test Commands
 		getCommand("vassalcity").setExecutor(new CommandVassalCity());
 		getCommand("vc").setExecutor(new CommandVassalCity());
@@ -38,9 +32,6 @@ public class VassalCity extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		fh.close();
 	}
-	
-	
 
 }
