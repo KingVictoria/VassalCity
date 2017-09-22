@@ -14,10 +14,10 @@ public class Rank implements Serializable {
 	private static final long serialVersionUID = 803169377515180316L;
 	
 	private ArrayList<Member> ranked = new ArrayList<Member>();
-	private City city;
+	private int cityId;
 	
 	public Rank(City city){
-		this.city = city;
+		cityId = city.getId();
 	}
 	
 	public ArrayList<Member> getRanked(){
@@ -28,7 +28,7 @@ public class Rank implements Serializable {
 		if(ranked.contains(member))
 			return false;
 		
-		if(member.getCity().equals(city)){
+		if(member.getCity().getId() == cityId){
 			ranked.add(member);
 			return true;
 		}
