@@ -2,6 +2,7 @@ package io.github.kingvictoria.vassalcity.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -100,26 +101,79 @@ public class CommandVassalCity implements CommandExecutor {
 				return false;
 			}
 			
-			// UTTERLY TEMPORARY
-			if(args[0].equalsIgnoreCase("n")){
+			// NEW CITY
+			if(args[0].equalsIgnoreCase("n") || args[0].equalsIgnoreCase("new")){
+				if(args.length == 1){
+					player.sendMessage(ChatColor.YELLOW+"USAGE: vc n <name...>");
+					return true;
+				}
+				
 				String name = "";
-				for(int i = 1; i < args.length-1; i++)
+				for(int i = 1; i < args.length; i++)
 					name += args[i];
 				
-				for(ChunkCoordinate coord: Main.getInstance().cityClaims.keySet())
-					if(coord.equals(player.getLocation())){
-						player.sendMessage(ChatColor.YELLOW+"That chunk is already claimed by "+Main.getInstance().cityClaims.get(coord).getName());
-						return true;
-					}
+				if(!newCity(player, name, player.getLocation())){
+					player.sendMessage(ChatColor.YELLOW+"USAGE: vc n <name...>");
+					player.sendMessage(ChatColor.YELLOW+"Must be in an "+ChatColor.LIGHT_PURPLE+"Unclaimed Chunk"+ChatColor.YELLOW+" and name it");
+					return true;
+				}
 				
-				Main.getInstance().cities.add(new City(player, name, player.getLocation()));
+				
 				player.sendMessage(ChatColor.YELLOW+"The city of "+ChatColor.LIGHT_PURPLE+name+ChatColor.YELLOW+" has been founded here!");
 				return true;
 			}
+			
+			// GUI (gui/g)
+			
+			//not yet
+			
+			// INVITE (invite/i <city> <player>)
+			if(args[0].equalsIgnoreCase("invite") || args[0].equalsIgnoreCase("i")){
+				if(args.length != 2){
+					player.sendMessage(ChatColor.YELLOW+"USAGE: vc i <player>");
+					return true;
+				}
+				
+				
+			}
+			
+			// ABANDON (abandon/ab <city>)
+			// RANK (rank/r <add/mod/rem/info> (rank))
+			// MAIN (main <city>)
+			// LIST CITIES (listcities/lc)
+			// LIST RANKS (listranks/lr <city>)
+			// REMOVE CLAIM (removeclaim/rc (ChunkX ChunkZ))
+			// MOVE SIGIL (movesigil/ms <city> (x y z))
+			// LIST MEMBERS (listmembers/ms <city>)
+			// LIST ACTIVES (listactives/la <city>)
+			// CITY INFO (cityinfo/ci <city>)
+			// SET NAME (setname/sn <city> <name...>)
+			// SET MESSAGE (setmessage/sm <city> <message...>)
+			
 		}
 		
 		
 		return false;
+	}
+	
+	private boolean invitePlayer(Player sender, Player recipient, City city){
+		
+		
+		return false;
+	}
+	
+	private boolean newCity(Player player, String name, Location loc){
+		for(City city: Main.getInstance().cities)
+			if(city.getName().equalsIgnoreCase(name))
+				return false;
+		
+		for(ChunkCoordinate coord: Main.getInstance().cityClaims.keySet())
+			if(coord.equals(loc))
+				return false;
+		
+		Main.getInstance().cities.add(new City(player, name, loc));
+		
+		return true;
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -225,14 +279,15 @@ public class CommandVassalCity implements CommandExecutor {
 			player.sendMessage(ChatColor.YELLOW+"/vc help <pg>");
 			return;
 		}
+		
 		if(pg == 1){
 			player.sendMessage(ChatColor.BLUE+"- - - - - ----------==Pg.01==---------- - - - - -");
 			player.sendMessage(ChatColor.YELLOW+"vc help/? <pg> "+ChatColor.WHITE+"- pulls up help info");
 			player.sendMessage(ChatColor.YELLOW+"vc claim/c (city) (ChunkX ChunkZ) "+ChatColor.WHITE+"- claims a chunk for your main city");
 			player.sendMessage(ChatColor.YELLOW+"vc map/m "+ChatColor.WHITE+"- displays a map of nearby city claims");
-			player.sendMessage(ChatColor.YELLOW+"vc new/n "+ChatColor.WHITE+"- opens prompt to make a new city");
+			player.sendMessage(ChatColor.YELLOW+"vc new/n <name...>"+ChatColor.WHITE+"- opens prompt to make a new city");
 			player.sendMessage(ChatColor.YELLOW+"vc gui/g "+ChatColor.WHITE+"- opens fancy gui that makes everything easier");
-			player.sendMessage(ChatColor.YELLOW+"vc add/a <city> <player> "+ChatColor.WHITE+"- adds a person to a city");
+			player.sendMessage(ChatColor.YELLOW+"vc invite/i <city> <player> "+ChatColor.WHITE+"- invites a person to a city");
 			return;
 		}
 		if(pg == 2){
@@ -247,12 +302,18 @@ public class CommandVassalCity implements CommandExecutor {
 		}
 		if(pg == 3){
 			player.sendMessage(ChatColor.BLUE+"- - - - - ----------==Pg.03==---------- - - - - -");
-			player.sendMessage(ChatColor.YELLOW+"vc movesigil/ms "+ChatColor.WHITE+"- moves the city center to your location");
-			player.sendMessage(ChatColor.YELLOW+"vc listmembers/lm <city> "+ChatColor.WHITE+"- lists all the members of a city");
+			player.sendMessage(ChatColor.YELLOW+"vc movesigil/ms <city>"+ChatColor.WHITE+"- moves the city center to your location");
+			player.sendMessage(ChatColor.YELLOW+"vc listmembers/lm <city> (x y z)"+ChatColor.WHITE+"- lists all the members of a city");
 			player.sendMessage(ChatColor.YELLOW+"vc listactives/la <city> "+ChatColor.WHITE+"- lists all the active members of a city");
 			player.sendMessage(ChatColor.YELLOW+"vc cityinfo/ci <city> "+ChatColor.WHITE+"- gets all the info about a given city");
-			player.sendMessage(ChatColor.YELLOW+"vc setname/sn <city> <name> "+ChatColor.WHITE+"- changes the name of a city");
-			player.sendMessage(ChatColor.YELLOW+"vc setmessage/sm "+ChatColor.WHITE+"- <city> <message> changes the entrance message of a city");
+			player.sendMessage(ChatColor.YELLOW+"vc setname/sn <city> <name...> "+ChatColor.WHITE+"- changes the name of a city");
+			player.sendMessage(ChatColor.YELLOW+"vc setmessage/sm <city> <message...> "+ChatColor.WHITE+"- changes the entrance message of a city");
+			return;
+		}
+		if(pg == 4){
+			player.sendMessage(ChatColor.BLUE+"- - - - - ----------==Pg.04==---------- - - - - -");
+			player.sendMessage(ChatColor.YELLOW+"vc accept/ac <city>"+ChatColor.WHITE+"- accepts an invitation to a city");
+			player.sendMessage(ChatColor.YELLOW+"vc listinvites/li "+ChatColor.WHITE+"- lists all invites to cities");
 			return;
 		}
 		
