@@ -36,6 +36,24 @@ public class Rank implements Serializable {
 		VassalCity.getInstance().ranks.add(this);
 	}
 	
+	public static Rank getRank(String name, int cityId){
+		for(Rank rank: VassalCity.getInstance().ranks)
+			if(rank.getName().equalsIgnoreCase(name) && rank.cityId == cityId)
+				return rank;
+		
+		return null;
+	}
+	
+	public static ArrayList<Rank> getRanks(City city){
+		ArrayList<Rank> ranks = new ArrayList<Rank>();
+		
+		for(Rank rank: VassalCity.getInstance().ranks)
+			if(rank.getCity().equals(city))
+				ranks.add(rank);
+		
+		return ranks;
+	}
+	
 	public City getCity(){
 		for(City city: VassalCity.getInstance().cities)
 			if(city.getId() == cityId)

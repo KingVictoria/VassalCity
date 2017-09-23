@@ -16,6 +16,8 @@ public class VassalCity extends JavaPlugin {
 	public ArrayList<City> cities;
 	public ArrayList<Rank> ranks;
 	public HashMap<ChunkCoordinate, City> cityClaims;
+	// Integer represents cities and ArrayList<Integer> represents VassalPlayers
+	public HashMap<Integer, ArrayList<Integer>> citizens;
 	
 	private static VassalCity instance;
 	

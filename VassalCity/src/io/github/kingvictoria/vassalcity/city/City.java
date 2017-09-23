@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.map.MapPalette;
 
 import io.github.kingvictoria.vassalcity.main.VassalCity;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
@@ -29,8 +30,7 @@ public class City implements Serializable {
 	private SerializableLocation center; // SigilPoint (City Center) 
 	private String name;
 	private String entranceMessage;
-	private UUID owner;
-	private ArrayList<UUID> members = new ArrayList<UUID>();
+	private int owner;
 	
 	/**
 	 * Creates an instance of type City.
@@ -39,14 +39,15 @@ public class City implements Serializable {
 	 * @param name   The name of the city
 	 * @param loc    The location of the city center (Sigil)
 	 */
+	@SuppressWarnings("deprecation")
 	public City(Player player, String name, Location loc){
-		center = new SerializableLocation(loc);
-		color = (byte) (center.getX()*center.getY()*center.getZ());
+		this.center = new SerializableLocation(loc);
+		this.color = MapPalette.matchColor((int)(255*Math.random()), (int)(255*Math.random()), (int)(255*Math.random()));
 		this.name = name;
-		owner = player.getUniqueId();
-		members.add(owner);
-		Rank r = new Rank(this, "owner");
-		// VassalPlayer.getPlayer(owner).addRank TODO add ranks to VassalPlayer
+		
+		owner = VassalPlayer.getPlayer(player).getId();
+		VassalPlayer.getPlayer(owner).addCity(this);
+		VassalPlayer.getPlayer(owner).addRank(new Rank(this, "Owner"));
 		VassalCity.getInstance().cityClaims.put(new ChunkCoordinate(center.getWorld().getChunkAt(center.getLocation()).getX(), center.getWorld().getChunkAt(center.getLocation()).getZ()), this);
 		
 		// UNIQUE CITY ID
@@ -72,11 +73,29 @@ public class City implements Serializable {
 	 */
 	public int getNumActives(){
 		int actives = 0;
-		for(Member member: members)
-			if(member.getActive())
+		for(VassalPlayer player: getMembers())
+			if(player.getActiveCityId() == id)
 				actives++;
 		
 		return actives;
+	}
+	
+	public int getNumWorkers(){
+		int workers = 0;
+		for(VassalPlayer player: getMembers())
+			if(player.getWorkerLocationId() == id)
+				workers++;
+		
+		return workers;
+	}
+	
+	public int getNumKnights(){
+		int knights = 0;
+		for(VassalPlayer player: getMembers())
+			if(player.getKnightLocationId() == id)
+				knights++;
+		
+		return knights;
 	}
 	
 	/**
@@ -84,11 +103,11 @@ public class City implements Serializable {
 	 * 
 	 * @return an array of the active members
 	 */
-	public ArrayList<Member> getActives(){
-		ArrayList<Member> actives = new ArrayList<Member>();
-		for(Member member: members)
-			if(member.getActive())
-				actives.add(member);
+	public ArrayList<VassalPlayer> getActives(){
+		ArrayList<VassalPlayer> actives = new ArrayList<VassalPlayer>();
+		for(VassalPlayer player: getMembers())
+			if(player.getActiveCityId() == id)
+				actives.add(player);
 		
 		return actives;
 	}
@@ -121,21 +140,21 @@ public class City implements Serializable {
 	}
 	
 	/**
-	 * Returns a reference to the city's owner's Member object.
+	 * Returns a reference to the city's owner VassalPlayer object.
 	 * 
 	 * @return the city's owner
 	 */
-	public Member getOwner(){
-		return owner;
+	public VassalPlayer getOwner(){
+		return VassalPlayer.getPlayer(id);
 	}
 	
 	/**
-	 * Returns a reference to the city's members ArrayList of Member objects.
+	 * Returns a reference to the city's members ArrayList of Player objects.
 	 * 
 	 * @return the members of the city
 	 */
-	public ArrayList<Member> getMembers(){
-		return members;
+	public ArrayList<VassalPlayer> getMembers(){
+		return VassalPlayer.getPlayersInCity(this);
 	}
 	
 	/**
@@ -143,7 +162,13 @@ public class City implements Serializable {
 	 * 
 	 * @return ranks ArrayList of Strings
 	 */
-	public HashMap<String, Rank> getRanks(){
+	public ArrayList<Rank> getRanks(){
+		ArrayList<Rank> ranks = new ArrayList<Rank>();
+		
+		for(Rank rank: VassalCity.getInstance().ranks)
+			if(rank.getCityId() == id)
+				ranks.add(rank);
+		
 		return ranks;
 	}
 	
@@ -200,11 +225,11 @@ public class City implements Serializable {
 	 * @param member the new owner
 	 * @return       false if the member is not of the city or is already the owner
 	 */
-	public boolean setOwner(Member member){
-		if(members.contains(member) && !ranks.get("Owner").getRanked().contains(member)){
-			ranks.get("Owner").getRanked().remove(owner);
-			owner = member;
-			ranks.get("Owner").getRanked().add(owner);
+	public boolean setOwner(VassalPlayer player){
+		if(isMember(player) && player.getId() != owner){
+			VassalPlayer.getPlayer(owner).removeRank(Rank.getRank("Owner", id));
+			owner = player.getId();
+			VassalPlayer.getPlayer(owner).addRank(Rank.getRank("Owner", id));
 			return true;
 		}
 		return false;
@@ -215,30 +240,32 @@ public class City implements Serializable {
 	 * 
 	 * @param player the player to be added
 	 * @param ranks  an ArrayList of String objects indicating the ranks to be added
-	 * @return       false if either the player is already a member or a given rank does not exist
+	 * @return       false if either the player is already a member
 	 */
-	public boolean addMember(Player player, ArrayList<String> ranks){
-		for(Member member: members)
-			if(member.getPlayer().equals(player))
-				return false;
-		
-		int reals = 0;
-		for(String key: this.ranks.keySet())
-			for(String rank: ranks)
-				if(key == rank)
-					reals++;
-		if(reals != ranks.size())
+	public boolean addMember(VassalPlayer player, ArrayList<String> ranks){
+		if(isMember(player))
 			return false;
-			
 		
-		Member member = new Member(player, this);
-		members.add(member);
-		for(String key: this.ranks.keySet())
-			for(String rank: ranks)
-				if(key == rank)
-					this.ranks.get(key).addRanked(member);
-			
+		player.addCity(this);
+		
+		for(String s: ranks)
+			if(getRanks().contains(Rank.getRank(s, id)))
+				player.addRank(Rank.getRank(s, id));
+		
 		return true;
+	}
+	
+	/**
+	 * Checks to see if a player is a member of the city.
+	 * 
+	 * @param player  Vassalplayer check
+	 * @return        true if is member of city
+	 */
+	public boolean isMember(VassalPlayer player){
+		if(player.getCities().contains(this))
+			return true;
+		
+		return false;
 	}
 	
 	/**
@@ -247,14 +274,14 @@ public class City implements Serializable {
 	 * @param member the member to be removed
 	 * @return       false if either they are not a member of the city or are the owner
 	 */
-	public boolean removeMember(Member member){
-		if(!members.contains(member))
+	public boolean removeMember(VassalPlayer player){
+		if(!getMembers().contains(player))
 			return false;
 		
-		if(ranks.get("Owner").getRanked().contains(member))
+		if(player.getRanks(this).contains(Rank.getRank("Owner", id)))
 			return false;
 		
-		members.remove(member);
+		player.removeCity(this);
 		return true;
 	}
 	
@@ -265,11 +292,11 @@ public class City implements Serializable {
 	 * @return     false if the rank already exists
 	 */
 	public boolean addRank(String rank){
-		for(String key: ranks.keySet())
-			if(key == rank)
-				return false;
+		if(Rank.getRank(rank, id) != null)
+			return false;
 		
-		ranks.put(rank, new Rank(this));
+		new Rank(this, rank);
+		
 		return true;
 	}
 	
@@ -280,11 +307,10 @@ public class City implements Serializable {
 	 * @return     false if the rank does not exist
 	 */
 	public boolean removeRank(String rank){
-		for(String key: ranks.keySet())
-			if(key == rank){
-				ranks.remove(rank);
-				return true;
-			}
+		if(Rank.getRank(rank, id) != null){
+			VassalPlayer.completelyRemoveRank(Rank.getRank(rank, id));
+			return true;
+		}
 		
 		return false;
 	}
@@ -293,8 +319,10 @@ public class City implements Serializable {
 	 * Removes the city
 	 */
 	public void abandon(){
-		members.clear();
+		VassalPlayer.completelyRemoveCity(this);
+		VassalPlayer.completelyRemoveRanks(Rank.getRanks(this));
 		VassalCity.getInstance().cities.remove(this);
+		
 		for(ChunkCoordinate key: VassalCity.getInstance().cityClaims.keySet()){
 			if(VassalCity.getInstance().cityClaims.get(key).equals(this))
 				VassalCity.getInstance().cityClaims.remove(key);
