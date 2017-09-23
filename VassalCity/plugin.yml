@@ -1,5 +1,5 @@
 name: VassalCity
-main: io.github.kingvictoria.vassalcity.main.Main
+main: io.github.kingvictoria.vassalcity.main.VassalCity
 version: 0.1
 author: kingvictoria
 commands: 
