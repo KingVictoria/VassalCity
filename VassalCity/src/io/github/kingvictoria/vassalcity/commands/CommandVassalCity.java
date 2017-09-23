@@ -13,8 +13,8 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
 import io.github.kingvictoria.vassalcity.city.City;
-import io.github.kingvictoria.vassalcity.city.Member;
 import io.github.kingvictoria.vassalcity.main.VassalCity;
+import io.github.kingvictoria.vassalcity.main.VassalPlayer;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
 
 public class CommandVassalCity implements CommandExecutor {
@@ -195,8 +195,8 @@ public class CommandVassalCity implements CommandExecutor {
 	
 	private boolean claim(Player player){
 		for(City city: VassalCity.getInstance().cities)
-			for(Member member: city.getMembers())
-				if(member.getPlayer().equals(player) && member.getActive()){
+			for(VassalPlayer member: city.getMembers())
+				if(member.getPlayer().equals(player) && member.getActiveCityId() == city.getId()){
 					boolean nextTo = false;
 					for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet()){
 						if(coord.equals(player.getLocation()))
@@ -221,8 +221,8 @@ public class CommandVassalCity implements CommandExecutor {
 	}
 	
 	private boolean claim(Player player, City city){
-		for(Member member: city.getMembers())
-			if(member.getPlayer().equals(player)){
+		for(VassalPlayer member: city.getMembers())
+			if(member.getPlayer().getUniqueId().equals(player.getUniqueId())){
 				boolean nextTo = false;
 				for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet()){
 					if(coord.equals(player.getLocation())){
@@ -249,8 +249,8 @@ public class CommandVassalCity implements CommandExecutor {
 	}
 	
 	private boolean claim(Player player, City city, ChunkCoordinate loc){
-		for(Member member: city.getMembers())
-			if(member.getPlayer().equals(player)){
+		for(VassalPlayer member: city.getMembers())
+			if(member.getUUID().equals(player.getUniqueId())){
 				boolean nextTo = false;
 				for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet()){
 					if(coord.equals(loc))

@@ -2,7 +2,6 @@ package io.github.kingvictoria.vassalcity.city;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import io.github.kingvictoria.vassalcity.main.VassalCity;
 

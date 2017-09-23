@@ -2,17 +2,15 @@ package io.github.kingvictoria.vassalcity.city;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapPalette;
 
 import io.github.kingvictoria.vassalcity.main.VassalCity;
+import io.github.kingvictoria.vassalcity.main.VassalPlayer;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
 import io.github.kingvictoria.vassalcity.serialization.SerializableLocation;
-import io.github.kingvictoria.vassalcore.main.VassalPlayer;
 
 
 /**

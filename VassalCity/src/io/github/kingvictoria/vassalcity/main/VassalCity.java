@@ -19,6 +19,7 @@ public class VassalCity extends JavaPlugin {
 	// Integer represents cities and ArrayList<Integer> represents VassalPlayers
 	public HashMap<Integer, ArrayList<Integer>> citizens;
 	
+	private FileHandler fh;
 	private static VassalCity instance;
 	
 	public static VassalCity getInstance() {
@@ -29,6 +30,11 @@ public class VassalCity extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		
+		cities = fh.getCities();
+		ranks = fh.getRanks();
+		cityClaims = fh.getCityClaims();
+		citizens = fh.getCitizens();
+		
 		// Test Commands
 		getCommand("vassalcity").setExecutor(new CommandVassalCity());
 		getCommand("vc").setExecutor(new CommandVassalCity());
@@ -36,6 +42,7 @@ public class VassalCity extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		fh.close();
 	}
 
 }
