@@ -16,8 +16,7 @@ public class Rank implements Serializable {
 	
 	private static final long serialVersionUID = 803169377515180316L;
 	
-	// Integer represents the city id, ArrayList<String> represents the permissions
-	private HashMap<Integer, ArrayList<String>> cityPerms = new HashMap<Integer, ArrayList<String>>();
+	private ArrayList<String> perms;
 	private int cityId;
 	private int id; // unique rank id
 	private String name;
@@ -57,28 +56,8 @@ public class Rank implements Serializable {
 		return name;
 	}
 	
-	public ArrayList<String> getPerms(City city){
-		for(Integer integer: cityPerms.keySet())
-			if(integer.intValue() == city.getId())
-				return cityPerms.get(integer);
-		
-		return null;
-	}
-	
-	public ArrayList<String> getPerms(Integer integer){
-		for(Integer key: cityPerms.keySet())
-			if(integer.intValue() == key.intValue())
-				return cityPerms.get(key);
-		
-		return null;
-	}
-	
-	public ArrayList<String> getPerms(int id){
-		for(Integer integer: cityPerms.keySet())
-			if(integer.intValue() == id)
-				return cityPerms.get(integer);
-		
-		return null;
+	public ArrayList<String> getPerms(){
+		return perms;
 	}
 	
 	public boolean setName(String name){
@@ -90,70 +69,51 @@ public class Rank implements Serializable {
 		return true;
 	}
 	
-	public boolean addPerm(String perm, City city){
-		for(Integer key: cityPerms.keySet())
-			if(key.intValue() == city.getId()){
-				for(String p: cityPerms.get(key))
-					if(perm.equals(p))
-						return false;
+	public boolean addPerm(String perm){
+		for(String key: perms)
+			if(key.equalsIgnoreCase(perm))
+				return false;
+		
+		perms.add(perm);
+		return true;
+	}
+	
+	public boolean addPerms(ArrayList<String> perms){
+		for(String key: perms)
+			for(String perm: this.perms)
+			if(key.equalsIgnoreCase(perm))
+				return false;
 				
-				cityPerms.get(key).add(perm);
+		
+		for(String perm: perms)
+			this.perms.add(perm);
+		return true;
+	}
+	
+	public boolean removePerm(String perm){
+		for(String key: perms)
+			if(key.equalsIgnoreCase(perm)){
+				perms.remove(key);
 				return true;
 			}
 		
 		return false;
 	}
 	
-	public boolean addPerms(ArrayList<String> perms, City city){
-		for(Integer key: cityPerms.keySet())
-			if(key.intValue() == city.getId()){
-				for(String p: cityPerms.get(key))
-					for(String per: perms)
-						if(p.equals(per))
-							return false;
-				
-				for(String perm: perms)
-					cityPerms.get(key).add(perm);
-				return true;
-			}
+	public boolean removePerms(ArrayList<String> perms){
+		int counter = 0;
+		for(String perm: perms)
+			for(String key: this.perms)
+				if(perm.equalsIgnoreCase(key))
+					counter++;
 		
-		return false;
-	}
-	
-	public boolean removePerm(String perm, City city){
-		for(Integer key: cityPerms.keySet())
-			if(city.getId() == key.intValue())
-				for(String s: cityPerms.get(key))
-					if(s.equalsIgnoreCase(perm)){
-						cityPerms.get(key).remove(s);
+		if(counter == perms.size())
+			for(String perm: perms)
+				for(String key: this.perms)
+					if(perm.equalsIgnoreCase(key)){
+						this.perms.remove(key);
 						return true;
 					}
-		
-		return false;
-	}
-	
-	public boolean removePerms(ArrayList<String> perms, City city){
-		ArrayList<String> backup = new ArrayList<String>();
-		int count = 0;
-		for(Integer key: cityPerms.keySet())
-			if(key.intValue() == city.getId()){
-				for(String cityperm: cityPerms.get(key))
-					for(String perm: perms)
-						if(perm.equalsIgnoreCase(cityperm)){
-							backup.add(cityperm);
-							cityPerms.remove(cityperm);
-							count++;
-						}
-				
-				if(count == perms.size() && count != 0){
-					return true;
-				}else{
-					for(String s: backup)
-						cityPerms.get(key).add(s);
-					
-					return false;
-				}
-			}
 		
 		return false;
 	}
