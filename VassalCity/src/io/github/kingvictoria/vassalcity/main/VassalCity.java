@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import io.github.kingvictoria.vassalcity.city.City;
 import io.github.kingvictoria.vassalcity.city.Rank;
 import io.github.kingvictoria.vassalcity.commands.CommandVassalCity;
+import io.github.kingvictoria.vassalcity.listeners.JoinEventListener;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
 
 public class VassalCity extends JavaPlugin {
@@ -30,10 +31,15 @@ public class VassalCity extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		
+		fh = new FileHandler();
+		
 		cities = fh.getCities();
 		ranks = fh.getRanks();
 		cityClaims = fh.getCityClaims();
 		citizens = fh.getCitizens();
+		
+		// Event Listener
+		getServer().getPluginManager().registerEvents(new JoinEventListener(), this);
 		
 		// Test Commands
 		getCommand("vassalcity").setExecutor(new CommandVassalCity());

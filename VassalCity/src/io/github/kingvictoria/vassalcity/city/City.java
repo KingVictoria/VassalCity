@@ -44,8 +44,6 @@ public class City implements Serializable {
 		this.name = name;
 		
 		owner = VassalPlayer.getPlayer(player).getId();
-		VassalPlayer.getPlayer(owner).addCity(this);
-		VassalPlayer.getPlayer(owner).addRank(new Rank(this, "Owner"));
 		VassalCity.getInstance().cityClaims.put(new ChunkCoordinate(center.getWorld().getChunkAt(center.getLocation()).getX(), center.getWorld().getChunkAt(center.getLocation()).getZ()), this);
 		
 		// UNIQUE CITY ID
@@ -53,6 +51,14 @@ public class City implements Serializable {
 		for(City city: VassalCity.getInstance().cities)
 			if(city.getId() == id)
 				id++;
+		
+		for(City city: VassalCity.getInstance().cities)
+			if(city.getName().equals(name))
+				this.name += id+"name_already_in_use";
+		
+
+		VassalPlayer.getPlayer(owner).addCity(this);
+		VassalPlayer.getPlayer(owner).addRank(new Rank(this, "Owner"));
 	}
 	
 	/**

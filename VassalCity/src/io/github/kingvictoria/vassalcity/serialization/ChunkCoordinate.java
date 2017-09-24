@@ -82,38 +82,26 @@ public class ChunkCoordinate implements Serializable {
 	
 	public boolean nextTo(ChunkCoordinate coord){
 		for(int x = -1; x <= 1; x++)
-			for(int z = -1; z <= 1; z++)
-				if(this.x+x == coord.getX() && this.z+z == coord.getZ() && !(z == 0 && x == 0))
-					return true;
+			if(this.x+x == coord.getX() && this.z == coord.getZ() && !(z == 0 && x == 0))
+				return true;
+		
+		for(int z = -1; z <= 1; z++)
+			if(this.x == coord.getX() && this.z+z == coord.getZ() && !(z == 0 && x == 0))
+				return true;
 		
 		return false;
 	}
 	
 	public boolean nextTo(Chunk chunk){
-		for(int x = -1; x <= 1; x++)
-			for(int z = -1; z <= 1; z++)
-				if(this.x+x == chunk.getX() && this.z+z == chunk.getZ() && !(z == 0 && x == 0))
-					return true;
-		
-		return false;
+		return nextTo(new ChunkCoordinate(chunk));
 	}
 	
 	public boolean nextTo(Location loc){
-		for(int x = -1; x <= 1; x++)
-			for(int z = -1; z <= 1; z++)
-				if(this.x+x == loc.getChunk().getX() && this.z+z == loc.getChunk().getZ() && !(z == 0 && x == 0))
-					return true;
-		
-		return false;
+		return nextTo(new ChunkCoordinate(loc));
 	}
 	
-	public boolean nextTo(int xx, int zz){
-		for(int x = -1; x <= 1; x++)
-			for(int z = -1; z <= 1; z++)
-				if(this.x+x == xx && this.z+z == zz && !(z == 0 && x == 0))
-					return true;
-		
-		return false;
+	public boolean nextTo(int x, int z){
+		return nextTo(new ChunkCoordinate(x, z));
 	}
 
 	

@@ -30,7 +30,7 @@ public class VassalPlayer implements Serializable {
 	private int knightLocation;
 	private int workerLocation;
 	
-	VassalPlayer(Player player){
+	public VassalPlayer(Player player){
 		uuid = player.getUniqueId();
 		players.add(this);
 		
@@ -136,6 +136,10 @@ public class VassalPlayer implements Serializable {
 	
 	public int getId(){
 		return id;
+	}
+	
+	public String getName(){
+		return getPlayer().getName();
 	}
 	
 	public ArrayList<Integer> getCityIds(){
@@ -254,18 +258,19 @@ public class VassalPlayer implements Serializable {
 		return workerLocation;
 	}
 	
-	/*
-	public boolean setActiveCity(){
-		for()
+	
+	public void setActiveCity(City city){
+		if(isInCity(city))
+			activeCity = city.getId();
 	}
 	
-	public boolean setKnightLocation(){
-		
+	public void setKnightLocation(City city){
+		knightLocation = city.getId();
 	}
 	
-	public boolean setWorkerLocation(){
-		
-	} */
+	public void setWorkerLocation(City city){
+		workerLocation = city.getId();
+	}
 	
 	public boolean addPerm(String perm, City city){
 		if(getCities().contains(city) && !getCitiesWithPerms().contains(city)){
@@ -340,10 +345,14 @@ public class VassalPlayer implements Serializable {
 	}
 	
 	public boolean isInCity(City city){
-		for(City c: getCities())
-			if(c.equals(city))
-				return true;
+		if(getCities().size() == 0)
+			return false;
 		
+		for(City c: getCities()){
+			if(c.equals(city)){
+				return true;
+			}
+		}
 		return false;
 	}
 	
@@ -368,10 +377,13 @@ public class VassalPlayer implements Serializable {
 			return false;
 		
 		for(Integer key: VassalCity.getInstance().citizens.keySet())
-			if(key.intValue() == city.getId())
-				VassalCity.getInstance().citizens.get(key).add(new Integer(city.getId()));
+			if(key.intValue() == city.getId()){
+				VassalCity.getInstance().citizens.get(key).add(new Integer(id));
+				return true;
+			}
 			
-		return true;
+		VassalCity.getInstance().citizens.put(new Integer(city.getId()), new ArrayList<Integer>());
+		return addCity(city);
 	}
 	
 	public boolean addCity(int id){

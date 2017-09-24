@@ -109,8 +109,9 @@ public class CommandVassalCity implements CommandExecutor {
 				}
 				
 				String name = "";
-				for(int i = 1; i < args.length; i++)
-					name += args[i];
+				name += args[1];
+				for(int i = 2; i < args.length; i++)
+					name += " "+args[i];
 				
 				if(!newCity(player, name, player.getLocation())){
 					player.sendMessage(ChatColor.YELLOW+"USAGE: vc n <name...>");
@@ -149,6 +150,29 @@ public class CommandVassalCity implements CommandExecutor {
 			// CITY INFO (cityinfo/ci <city>)
 			// SET NAME (setname/sn <city> <name...>)
 			// SET MESSAGE (setmessage/sm <city> <message...>)
+			// SET ACTIVE (vc setactive/sa <city>)
+			if(args[0].equalsIgnoreCase("setactive") || args[0].equalsIgnoreCase("sa")){
+				if(args.length < 2){
+					player.sendMessage(ChatColor.YELLOW+"USAGE: vc sa <city>");
+					return true;
+				}else{
+					String cityName = "";
+					cityName += args[1];
+					for(int i = 2; i < args.length; i++)  //TODO fix claiming (again)
+						cityName += " "+args[i];
+					
+					for(City city: VassalCity.getInstance().cities)
+						if(VassalPlayer.getPlayer(player).isInCity(city) && city.getName().equals(cityName)){
+							VassalPlayer.getPlayer(player).setActiveCity(city);
+							player.sendMessage(ChatColor.YELLOW+"Active city set to: "+ChatColor.LIGHT_PURPLE+city.getName());
+							return true;
+						}
+					
+					player.sendMessage(ChatColor.LIGHT_PURPLE+cityName+ChatColor.YELLOW+" is not a valid city!");
+					return true;
+				}
+					
+			}
 			
 		}
 		
@@ -312,8 +336,9 @@ public class CommandVassalCity implements CommandExecutor {
 		}
 		if(pg == 4){
 			player.sendMessage(ChatColor.BLUE+"- - - - - ----------==Pg.04==---------- - - - - -");
-			player.sendMessage(ChatColor.YELLOW+"vc accept/ac <city>"+ChatColor.WHITE+"- accepts an invitation to a city");
+			player.sendMessage(ChatColor.YELLOW+"vc accept/ac <city> "+ChatColor.WHITE+"- accepts an invitation to a city");
 			player.sendMessage(ChatColor.YELLOW+"vc listinvites/li "+ChatColor.WHITE+"- lists all invites to cities");
+			player.sendMessage(ChatColor.YELLOW+"vc setactive/sa <city> "+ChatColor.WHITE+"- sets your active city");
 			return;
 		}
 		
