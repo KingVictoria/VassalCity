@@ -16,6 +16,7 @@ public class FileHandler {
 	
 	private ArrayList<City> cities;
 	private ArrayList<Rank> ranks;
+	private ArrayList<VassalPlayer> players;
 	private HashMap<ChunkCoordinate, City> cityClaims;
 	private HashMap<Integer, ArrayList<Integer>> citizens;
 	private VassalCity vassalCity;
@@ -35,12 +36,16 @@ public class FileHandler {
 		
 		loadCitizens();
 		if(citizens.size() > 0)
-			System.out.println("[VassalCity] Loaded Cities: "+citizens.toString());
+			System.out.println("[VassalCity] Loaded Citizens: "+citizens.toString());
 					
 		
 		loadRanks();
 		if(ranks.size() > 0)
-			System.out.println("[VassalCity] Loaded Cities: "+ranks.toString());
+			System.out.println("[VassalCity] Loaded Ranks: "+ranks.toString());
+		
+		loadPlayers();
+		if(players.size() > 0)
+			System.out.println("[VassalCity] Loaded Players: "+players.toString());
 		
 		loadCityClaims();
 		if(cityClaims.size() > 0){
@@ -48,7 +53,7 @@ public class FileHandler {
 			System.out.println("[VassalCity] Loaded City Claims: "+cityClaims.toString());
 		}
 	}
-	
+
 	public void close(){
 		save(cities, new File(vassalCity.getDataFolder(), "cities.dat"));
 		if(cities.size() > 0)
@@ -57,6 +62,10 @@ public class FileHandler {
 		save(ranks, new File(vassalCity.getDataFolder(), "ranks.dat"));
 		if(ranks.size() > 0)
 			System.out.println("[VassalCity] Saving Ranks: "+ranks.toString());
+		
+		save(players, new File(vassalCity.getDataFolder(), "players.dat"));
+		if(players.size() > 0)
+			System.out.println("[VassalCity] Saving Players: "+players.toString());
 		
 		save(citizens, new File(vassalCity.getDataFolder(), "citizens.dat"));
 		if(citizens.size() > 0)
@@ -101,6 +110,14 @@ public class FileHandler {
 	}
 	
 	@SuppressWarnings("unchecked")
+	private void loadPlayers() {
+		players = (ArrayList<VassalPlayer>) load(new File(vassalCity.getDataFolder(), "players.dat"));
+		
+		if(players == null)
+			players = new ArrayList<VassalPlayer>();
+	}
+	
+	@SuppressWarnings("unchecked")
 	private void loadCitizens() {
 		citizens = (HashMap<Integer, ArrayList<Integer>>) load(new File(vassalCity.getDataFolder(), "citizens.dat"));
 		
@@ -114,6 +131,10 @@ public class FileHandler {
 	
 	public ArrayList<Rank> getRanks(){
 		return ranks;
+	}
+	
+	public ArrayList<VassalPlayer> getPlayers(){
+		return players;
 	}
 	
 	public HashMap<Integer, ArrayList<Integer>> getCitizens(){

@@ -31,12 +31,14 @@ public class VassalCity extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		
+		// Load Saved Data
 		fh = new FileHandler();
 		
 		cities = fh.getCities();
 		ranks = fh.getRanks();
 		cityClaims = fh.getCityClaims();
 		citizens = fh.getCitizens();
+		VassalPlayer.setPlayers(fh.getPlayers());
 		
 		// Event Listener
 		getServer().getPluginManager().registerEvents(new JoinEventListener(), this);

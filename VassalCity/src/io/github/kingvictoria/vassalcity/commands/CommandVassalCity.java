@@ -45,43 +45,15 @@ public class CommandVassalCity implements CommandExecutor {
 			
 			// CLAIM
 			if(args[0].equalsIgnoreCase("claim") || args[0].equalsIgnoreCase("c")){
-				if(args.length == 1)
-					if(claim(player)){
-						return true;
-					}else{
-						player.sendMessage(ChatColor.YELLOW+"You must be an active member of a city claiming an unclaimed chunk next to that city!");
-						return true;
-					}
-				
-				if(args.length == 2)
-					try{
-						for(City city: VassalCity.getInstance().cities)
-							if(city.getName().equalsIgnoreCase(args[1]))
-								if(claim(player, city)){
-									return true;
-								}else{
-									player.sendMessage(ChatColor.YELLOW+"You must be an active member of a city claiming an unclaimed chunk next to that city!");
-									return true;
-								}
-					}catch(Exception e){
-						player.sendMessage(ChatColor.YELLOW+"USAGE: vc c (city) (chunkX chunkZ)");
-						return true;
-					}
-				
-				if(args.length == 4){
-					try{
-						for(City city: VassalCity.getInstance().cities)
-							if(city.getName().equalsIgnoreCase(args[1]))
-								if(claim(player, city, new ChunkCoordinate(new Integer(args[2]).intValue(), new Integer(args[3]).intValue()))){
-									return true;
-								}else{
-									player.sendMessage(ChatColor.YELLOW+"You must be an active member of a city claiming an unclaimed chunk next to that city!");
-									return true;
-								}
-					}catch(Exception e){
-						player.sendMessage(ChatColor.YELLOW+"USAGE: vc c (city) (chunkX chunkZ)");
-						return true;
-					}
+				if(args.length == 1){
+					for(City city: VassalCity.getInstance().cities)
+						if(city.getId() == VassalPlayer.getPlayer(player).getActiveCityId())
+							if(claim(player, city)){
+								player.sendMessage(ChatColor.YELLOW+"This chunk has been successfully claimed for "+ChatColor.LIGHT_PURPLE+city.getName());
+								return true;
+							}
+				}else{
+					// TODO implement multi-word name compatability for claims
 				}
 			}
 			
@@ -151,6 +123,9 @@ public class CommandVassalCity implements CommandExecutor {
 			// SET NAME (setname/sn <city> <name...>)
 			// SET MESSAGE (setmessage/sm <city> <message...>)
 			// SET ACTIVE (vc setactive/sa <city>)
+			// ACCEPT (accept/ac <city>)
+			// LIST INVITES (vc listinvites/li)
+			// SET ACTIVE (vc setactive/sa <city...>
 			if(args[0].equalsIgnoreCase("setactive") || args[0].equalsIgnoreCase("sa")){
 				if(args.length < 2){
 					player.sendMessage(ChatColor.YELLOW+"USAGE: vc sa <city>");
@@ -235,7 +210,6 @@ public class CommandVassalCity implements CommandExecutor {
 								+") claimed for "+city.getName());
 						return true;
 					}else{
-						player.sendMessage(ChatColor.YELLOW+"The claim must be next to your city claims!");
 						return false;
 					}
 

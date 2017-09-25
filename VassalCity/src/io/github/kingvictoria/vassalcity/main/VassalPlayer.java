@@ -84,6 +84,10 @@ public class VassalPlayer implements Serializable {
 		return players;
 	}
 	
+	public static void setPlayers(ArrayList<VassalPlayer> p){
+		players = p;
+	}
+	
 	public static ArrayList<VassalPlayer> getPlayersInCity(City city){
 		ArrayList<VassalPlayer> cityPlayers = new ArrayList<VassalPlayer>();
 		
