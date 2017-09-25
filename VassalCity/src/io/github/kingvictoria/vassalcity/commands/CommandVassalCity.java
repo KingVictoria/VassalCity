@@ -53,8 +53,20 @@ public class CommandVassalCity implements CommandExecutor {
 								return true;
 							}
 				}else{
-					// TODO implement multi-word name compatability for claims
+					String cityName = args[1];
+					for(int i = 2; i < args.length; i++)
+						cityName += args[i];
+					
+					for(City city: VassalCity.getInstance().cities)
+						if(City.getCity(cityName) != null && city.getId() == City.getCity(cityName).getId() && VassalPlayer.getPlayer(player).getCities().contains(city))
+							if(claim(player, city)){
+								player.sendMessage(ChatColor.YELLOW+"This chunk has been successfully claimed for "+ChatColor.LIGHT_PURPLE+city.getName());
+								return true;
+							}
 				}
+				
+				player.sendMessage(ChatColor.YELLOW+"USAGE: vc c (city...)");
+				return true;
 			}
 			
 			// HELP
@@ -192,40 +204,14 @@ public class CommandVassalCity implements CommandExecutor {
 		return true;
 	}
 	
-	private boolean claim(Player player){
-		for(City city: VassalCity.getInstance().cities)
-			for(VassalPlayer member: city.getMembers())
-				if(member.getPlayer().equals(player) && member.getActiveCityId() == city.getId()){
-					boolean nextTo = false;
-					for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet()){
-						if(coord.equals(player.getLocation()))
-							return false;
-						if(coord.nextTo(player.getLocation()) && VassalCity.getInstance().cityClaims.get(coord).equals(city))
-							nextTo = true;
-					}
-
-					if(nextTo){
-						VassalCity.getInstance().cityClaims.put(new ChunkCoordinate(player.getLocation()), city);
-						player.sendMessage(ChatColor.YELLOW+"Chunk at ("+player.getLocation().getChunk().getX()+", "+player.getLocation().getChunk().getZ()
-								+") claimed for "+city.getName());
-						return true;
-					}else{
-						return false;
-					}
-
-				}
-
-		return false;
-	}
-	
 	private boolean claim(Player player, City city){
 		for(VassalPlayer member: city.getMembers())
 			if(member.getPlayer().getUniqueId().equals(player.getUniqueId())){
 				boolean nextTo = false;
 				for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet()){
 					if(coord.equals(player.getLocation())){
-						player.sendMessage(ChatColor.YELLOW+"That chunk has already been claimed by "+VassalCity.getInstance().cityClaims.get(coord).getName());
-						return true;
+						player.sendMessage(ChatColor.YELLOW+"That chunk has already been claimed by "+ChatColor.LIGHT_PURPLE+VassalCity.getInstance().cityClaims.get(coord).getName());
+						return false;
 					}
 					if(coord.nextTo(player.getLocation()) && VassalCity.getInstance().cityClaims.get(coord).equals(city))
 						nextTo = true;
@@ -233,32 +219,6 @@ public class CommandVassalCity implements CommandExecutor {
 				
 				if(nextTo){
 					VassalCity.getInstance().cityClaims.put(new ChunkCoordinate(player.getLocation()), city);
-					player.sendMessage(ChatColor.YELLOW+"Chunk at ("+player.getLocation().getChunk().getX()+", "+player.getLocation().getChunk().getZ()
-							+") claimed for "+city.getName());
-					return true;
-				}else{
-					player.sendMessage(ChatColor.YELLOW+"The claim must be next to your city claims!");
-					return false;
-				}
-					
-			}
-				
-		return false;
-	}
-	
-	private boolean claim(Player player, City city, ChunkCoordinate loc){
-		for(VassalPlayer member: city.getMembers())
-			if(member.getUUID().equals(player.getUniqueId())){
-				boolean nextTo = false;
-				for(ChunkCoordinate coord: VassalCity.getInstance().cityClaims.keySet()){
-					if(coord.equals(loc))
-						return false;
-					if(coord.nextTo(loc) && VassalCity.getInstance().cityClaims.get(coord).equals(city))
-						nextTo = true;
-				}
-				
-				if(nextTo){
-					VassalCity.getInstance().cityClaims.put(loc, city);
 					player.sendMessage(ChatColor.YELLOW+"Chunk at ("+player.getLocation().getChunk().getX()+", "+player.getLocation().getChunk().getZ()
 							+") claimed for "+city.getName());
 					return true;

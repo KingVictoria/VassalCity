@@ -53,12 +53,26 @@ public class City implements Serializable {
 				id++;
 		
 		for(City city: VassalCity.getInstance().cities)
-			if(city.getName().equals(name))
+			if(city.getName().equalsIgnoreCase(name))
 				this.name += id+"name_already_in_use";
 		
 
 		VassalPlayer.getPlayer(owner).addCity(this);
 		VassalPlayer.getPlayer(owner).addRank(new Rank(this, "Owner"));
+	}
+	
+	/**
+	 * Gets a city by its name
+	 * 
+	 * @param name the name being searched for
+	 * @return     the city
+	 */
+	public static City getCity(String name){
+		for(City city: VassalCity.getInstance().cities)
+			if(city.getName().equalsIgnoreCase(name))
+				return city;
+		
+		return null;
 	}
 	
 	/**
