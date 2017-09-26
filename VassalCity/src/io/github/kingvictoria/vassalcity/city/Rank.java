@@ -21,6 +21,7 @@ public class Rank implements Serializable {
 	private String name;
 	
 	public Rank(City city, String name){
+		perms = new ArrayList<String>();
 		cityId = city.getId();
 		this.name = name;
 		for(Rank rank: VassalCity.getInstance().ranks)
@@ -87,9 +88,10 @@ public class Rank implements Serializable {
 	}
 	
 	public boolean addPerm(String perm){
-		for(String key: perms)
-			if(key.equalsIgnoreCase(perm))
-				return false;
+		if(perms.size() > 0)
+			for(String key: perms)
+				if(key.equalsIgnoreCase(perm))
+					return false;
 		
 		perms.add(perm);
 		return true;

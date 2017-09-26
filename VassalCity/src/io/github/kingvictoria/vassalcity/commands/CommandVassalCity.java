@@ -7,14 +7,19 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.conversations.Conversable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
 import io.github.kingvictoria.vassalcity.city.City;
+import io.github.kingvictoria.vassalcity.city.Permissions;
+import io.github.kingvictoria.vassalcity.city.Rank;
 import io.github.kingvictoria.vassalcity.main.VassalCity;
 import io.github.kingvictoria.vassalcity.main.VassalPlayer;
+import io.github.kingvictoria.vassalcity.prompts.ModifyRankConversation;
+import io.github.kingvictoria.vassalcity.prompts.ModifyRankPrompt;
 import io.github.kingvictoria.vassalcity.serialization.ChunkCoordinate;
 
 public class CommandVassalCity implements CommandExecutor {
@@ -123,7 +128,89 @@ public class CommandVassalCity implements CommandExecutor {
 			}
 			
 			// ABANDON (abandon/ab <city>)
-			// RANK (rank/r <add/mod/rem/info> (rank))
+			if(args[0].equalsIgnoreCase("abandon") || args[0].equalsIgnoreCase("ab")){
+				if(args.length < 2){
+					player.sendMessage(ChatColor.YELLOW+"USAGE: vc ab <city...>");
+					return true;
+				}
+				
+				String cityName = getCityName(args);
+				if(City.getCity(cityName) != null && City.getCity(cityName).getOwner().equals(VassalPlayer.getPlayer(player))){
+					City.getCity(cityName).abandon();
+					player.sendMessage(ChatColor.YELLOW+"The city of "+ChatColor.LIGHT_PURPLE+cityName+ChatColor.YELLOW+" has been abandoned");
+					return true;
+				}
+				
+				if(City.getCity(cityName) != null){
+					player.sendMessage(ChatColor.YELLOW+"You are not the owner of "+ChatColor.LIGHT_PURPLE+cityName);
+					return true;
+				}
+				
+				player.sendMessage(ChatColor.LIGHT_PURPLE+cityName+ ChatColor.YELLOW+" is not a valid city");
+				return true;
+
+			}
+			
+			// RANK (rank/r <add/mod/rem/info> <rank> <city>)
+			if(args[0].equalsIgnoreCase("rank") || args[0].equalsIgnoreCase("r")){
+				
+				// Incorrect usage
+				if(args.length < 4){
+					player.sendMessage(ChatColor.YELLOW+"USAGE: vc r <add/mod/rem/info <rank> <city...>");
+					return true;
+				}
+				
+				// ADD
+				if(args[1].equalsIgnoreCase("add")){
+					String rank = args[2];
+					String cityName = getCityName(args, 3);
+					
+					if(City.getCity(cityName) == null){
+						player.sendMessage(ChatColor.YELLOW+"That city is invalid!");
+						return true;
+					}
+					
+					if(Rank.getRank(rank, City.getCity(cityName).getId()) != null){
+						player.sendMessage(ChatColor.YELLOW+"That rank name already exists!");
+						return true;
+					}
+					
+					if(Permissions.contains(VassalPlayer.getPlayer(player), City.getCity(cityName), Permissions.add_rank))
+						new Rank(City.getCity(cityName), rank);
+					player.sendMessage(ChatColor.YELLOW+"The rank of "+ChatColor.LIGHT_PURPLE+rank+ChatColor.YELLOW+" has been created for the city of "+ChatColor.LIGHT_PURPLE+cityName);
+					return true;
+				}
+				
+				// MODIFY
+				if(args[1].equalsIgnoreCase("add")){
+					String rank = args[2];
+					String cityName = getCityName(args, 3);
+					
+					if(City.getCity(cityName) == null){
+						player.sendMessage(ChatColor.YELLOW+"That city is invalid!");
+						return true;
+					}
+					
+					if(Rank.getRank(rank, City.getCity(cityName).getId()) != null){
+						player.sendMessage(ChatColor.YELLOW+"That rank name already exists!");
+						return true;
+					}
+					
+					if(Permissions.contains(VassalPlayer.getPlayer(player), City.getCity(cityName), Permissions.manage_rank_permissions)){
+						new ModifyRankConversation(VassalCity.getInstance(), sender, new ModifyRankPrompt(City.getCity(cityName), Rank.getRank(rank, City.getCity(cityName).getId())));
+						return true; // TODO fix conversation (not initiating) -- (most likely because the permission check is failing)
+					}
+						
+				}
+				
+				// REMOVE
+				
+				
+				// INFORMATION
+				
+			}
+			
+			
 			// MAIN (main <city>)
 			// LIST CITIES (listcities/lc)
 			// LIST RANKS (listranks/lr <city>)
@@ -134,9 +221,9 @@ public class CommandVassalCity implements CommandExecutor {
 			// CITY INFO (cityinfo/ci <city>)
 			// SET NAME (setname/sn <city> <name...>)
 			// SET MESSAGE (setmessage/sm <city> <message...>)
-			// SET ACTIVE (vc setactive/sa <city>)
 			// ACCEPT (accept/ac <city>)
 			// LIST INVITES (vc listinvites/li)
+			// LEAVE CITY (vc leave/le <city...>)
 			// SET ACTIVE (vc setactive/sa <city...>
 			if(args[0].equalsIgnoreCase("setactive") || args[0].equalsIgnoreCase("sa")){
 				if(args.length < 2){
@@ -145,8 +232,13 @@ public class CommandVassalCity implements CommandExecutor {
 				}else{
 					String cityName = "";
 					cityName += args[1];
-					for(int i = 2; i < args.length; i++)  //TODO fix claiming (again)
+					for(int i = 2; i < args.length; i++)
 						cityName += " "+args[i];
+					
+					if(City.getCity(cityName) != null && !Permissions.contains(VassalPlayer.getPlayer(player), City.getCity(cityName), Permissions.set_active)){
+						player.sendMessage(ChatColor.YELLOW+"You do not have permission to do this in "+ChatColor.LIGHT_PURPLE+City.getCity(cityName).getName());
+						return false;
+					}
 					
 					for(City city: VassalCity.getInstance().cities)
 						if(VassalPlayer.getPlayer(player).isInCity(city) && city.getName().equals(cityName)){
@@ -165,6 +257,23 @@ public class CommandVassalCity implements CommandExecutor {
 		
 		
 		return false;
+	}
+	
+	
+	private String getCityName(String args[]){
+		String name = args[1];
+		for(int i = 2; i < args.length; i++)
+			name += " "+args[i];
+		
+		return name;
+	}
+	
+	private String getCityName(String args[], int index){
+		String name = args[index];
+		for(int i = index+1; i < args.length; i++)
+			name += " "+args[i];
+		
+		return name;
 	}
 	
 	private boolean invitePlayer(Player sender, Player recipient, City city){
@@ -205,6 +314,11 @@ public class CommandVassalCity implements CommandExecutor {
 	}
 	
 	private boolean claim(Player player, City city){
+		if(!Permissions.contains(VassalPlayer.getPlayer(player), city, Permissions.add_claim)){
+			player.sendMessage(ChatColor.YELLOW+"You do not have permission to do this in "+ChatColor.LIGHT_PURPLE+city.getName());
+			return false;
+		}
+		
 		for(VassalPlayer member: city.getMembers())
 			if(member.getPlayer().getUniqueId().equals(player.getUniqueId())){
 				boolean nextTo = false;
@@ -273,6 +387,7 @@ public class CommandVassalCity implements CommandExecutor {
 			player.sendMessage(ChatColor.YELLOW+"vc accept/ac <city> "+ChatColor.WHITE+"- accepts an invitation to a city");
 			player.sendMessage(ChatColor.YELLOW+"vc listinvites/li "+ChatColor.WHITE+"- lists all invites to cities");
 			player.sendMessage(ChatColor.YELLOW+"vc setactive/sa <city> "+ChatColor.WHITE+"- sets your active city");
+			player.sendMessage(ChatColor.YELLOW+"vc leave/le <city...> "+ChatColor.WHITE+"- leaves a city");
 			return;
 		}
 		

@@ -102,16 +102,11 @@ public class VassalPlayer implements Serializable {
 		return cityPlayers;
 	}
 	
-	public static boolean completelyRemoveRank(Rank rank){
+	public static void completelyRemoveRank(Rank rank){
 		for(VassalPlayer player: players)
-			for(Integer integer: player.getRankIds(rank.getCity()))
-				if(rank.getId() == integer.intValue()){
-					player.cityRanks.get(rank.getCityId()).remove(rank.getId());
-					VassalCity.getInstance().ranks.remove(rank);
-					return true;
-				}
+			player.removeRank(rank);
 		
-		return false;
+		VassalCity.getInstance().ranks.remove(rank);
 	}
 	
 	public static void completelyRemoveRanks(ArrayList<Rank> ranks){
@@ -122,8 +117,6 @@ public class VassalPlayer implements Serializable {
 	public static void completelyRemoveCity(City city){
 		for(VassalPlayer player: players)
 			player.removeCity(city);
-
-		VassalCity.getInstance().cities.remove(city);
 	}
 	
 	public Player getPlayer(){
@@ -416,9 +409,13 @@ public class VassalPlayer implements Serializable {
 				if(key.intValue() == city.getId())
 					cityRanks.remove(key);
 			
+			// Avoid concurrent modification exception
+			ArrayList<Integer> temp = new ArrayList<Integer>();
 			for(Integer key: VassalCity.getInstance().citizens.keySet())
 				if(key.intValue() == city.getId())
-					VassalCity.getInstance().citizens.remove(key);
+					temp.add(key);
+			for(Integer integer: temp)
+				VassalCity.getInstance().citizens.remove(integer);
 			
 			return true;
 		}
@@ -460,11 +457,11 @@ public class VassalPlayer implements Serializable {
 	}
 	
 	public boolean removeRank(Rank rank){
-		for(Integer integer: cityRanks.keySet())
-			if(integer.intValue() == rank.getCityId())
-				for(Integer key: cityRanks.get(integer))
-					if(key.intValue() == rank.getId()){
-						cityRanks.get(integer).remove(key);
+		for(Integer key: cityRanks.keySet())
+			if(key.intValue() == rank.getCityId())
+				for(Integer rid: cityRanks.get(key))
+					if(rid.intValue() == rank.getId()){
+						cityRanks.get(key).remove(rid);
 						return true;
 					}
 		

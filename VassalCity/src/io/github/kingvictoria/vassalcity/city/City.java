@@ -58,7 +58,9 @@ public class City implements Serializable {
 		
 
 		VassalPlayer.getPlayer(owner).addCity(this);
-		VassalPlayer.getPlayer(owner).addRank(new Rank(this, "Owner"));
+		Rank own = new Rank(this, "Owner");
+		own.addPerm(Permissions.all);
+		VassalPlayer.getPlayer(owner).addRank(own);
 	}
 	
 	/**
@@ -163,7 +165,7 @@ public class City implements Serializable {
 	 * @return the city's owner
 	 */
 	public VassalPlayer getOwner(){
-		return VassalPlayer.getPlayer(id);
+		return VassalPlayer.getPlayer(owner);
 	}
 	
 	/**
@@ -341,10 +343,12 @@ public class City implements Serializable {
 		VassalPlayer.completelyRemoveRanks(Rank.getRanks(this));
 		VassalCity.getInstance().cities.remove(this);
 		
-		for(ChunkCoordinate key: VassalCity.getInstance().cityClaims.keySet()){
+		ArrayList<ChunkCoordinate> coords = new ArrayList<ChunkCoordinate>();
+		for(ChunkCoordinate key: VassalCity.getInstance().cityClaims.keySet())
 			if(VassalCity.getInstance().cityClaims.get(key).equals(this))
-				VassalCity.getInstance().cityClaims.remove(key);
-		}
+				coords.add(key);
+		for(ChunkCoordinate coord: coords)
+			VassalCity.getInstance().cityClaims.remove(coord);
 	}
 	
 	/**
